@@ -1,0 +1,10 @@
+.env
+.DS_Store
+build/
+mcp-docs/
+node_modules/
+logs/
+error.log
+combined.log
+*.log
+*.log.*
