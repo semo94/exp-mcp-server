@@ -17,12 +17,18 @@
   "author": "Salim Bakri",
   "license": "MIT",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@langchain/anthropic": "^0.3.16",
+    "@langchain/core": "^0.3.43",
+    "@langchain/openai": "^0.5.4",
     "@modelcontextprotocol/sdk": "^1.8.0",
+    "cors": "^2.8.5",
     "express": "^5.1.0",
-    "zod": "^3.24.2",
-    "winston": "^3.10.0",
+    "langchain": "^0.3.20",
+    "neo4j-driver": "^5.28.1",
     "uuid": "^9.0.1",
-    "cors": "^2.8.5"
+    "winston": "^3.10.0",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@types/cors": "^2.8.15",

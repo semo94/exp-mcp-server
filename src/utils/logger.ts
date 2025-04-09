@@ -1,7 +1,12 @@
 import winston from 'winston';
 import path from 'path';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
 import { LOG_LEVEL, LOG_DIR, LOG_FILE, ERROR_LOG_FILE, ENABLE_FILE_LOGGING } from './config.js';
+
+// Get the directory name of the current module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Define custom log levels
 const levels = {
@@ -11,9 +16,21 @@ const levels = {
   debug: 3,
 };
 
+// Resolve the log directory path safely
+// If LOG_DIR is an absolute path, use it directly
+// If LOG_DIR is a relative path, resolve it relative to the current working directory
+const absoluteLogDir = LOG_DIR.startsWith('/') 
+  ? LOG_DIR // Already absolute
+  : path.resolve(process.cwd(), LOG_DIR);
+
 // Ensure log directory exists
-if (!fs.existsSync(LOG_DIR)) {
-  fs.mkdirSync(LOG_DIR, { recursive: true });
+try {
+  if (!fs.existsSync(absoluteLogDir)) {
+    fs.mkdirSync(absoluteLogDir, { recursive: true });
+    console.info(`Created log directory: ${absoluteLogDir}`);
+  }
+} catch (error) {
+  console.error(`Failed to create log directory (${absoluteLogDir}): ${error}`);
 }
 
 // Create winston logger instance
@@ -45,22 +62,26 @@ export const logger = winston.createLogger({
 
 // Add file transports when enabled
 if (ENABLE_FILE_LOGGING) {
-  // Add error log file transport
-  logger.add(
-    new winston.transports.File({ 
-      filename: path.join(LOG_DIR, ERROR_LOG_FILE), 
-      level: 'error' 
-    })
-  );
-  
-  // Add combined log file transport
-  logger.add(
-    new winston.transports.File({ 
-      filename: path.join(LOG_DIR, LOG_FILE)
-    })
-  );
-  
-  logger.info(`File logging enabled: ${path.join(LOG_DIR, LOG_FILE)}`);
+  try {
+    // Add error log file transport
+    logger.add(
+      new winston.transports.File({ 
+        filename: path.join(absoluteLogDir, ERROR_LOG_FILE), 
+        level: 'error' 
+      })
+    );
+    
+    // Add combined log file transport
+    logger.add(
+      new winston.transports.File({ 
+        filename: path.join(absoluteLogDir, LOG_FILE)
+      })
+    );
+    
+    logger.info(`File logging enabled: ${path.join(absoluteLogDir, LOG_FILE)}`);
+  } catch (error) {
+    console.error(`Failed to initialize file logging: ${error}`);
+  }
 }
 
 // Add stream for stderr logging (useful for debugging)
